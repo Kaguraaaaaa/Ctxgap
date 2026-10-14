@@ -93,7 +93,11 @@ def main():
         units = units[:a.limit]
     print(f"units={len(units)} view={a.view} model={a.model} prompt_version=v3.2", flush=True)
 
-    outd = ROOT / "evaluation_out"; outd.mkdir(exist_ok=True)
+    import time as _t
+    _tag = f"{a.view}__{a.model.replace('/', '_').replace(' ', '_')}__{_t.strftime('%Y%m%d-%H%M%S')}"
+    outd = ROOT / "evaluation_out" / _tag
+    outd.mkdir(parents=True, exist_ok=True)
+    print("  output dir:", outd, flush=True)
     lock = threading.Lock(); done = [0]; errs = collections.Counter()
 
     def work(v):
@@ -113,9 +117,12 @@ def main():
         if not lab:
             with lock: errs["judge: " + str(err)] += 1
             return
+        _scores = {q: SCORE.get(str(l).strip().lower(), 0.0) for q, l in lab.items()
+                   if q in qmap}
         rec = {"unit_id": v["unit_id"], "view": a.view, "model": a.model,
                "prompt_version": "v3.2", "answers": ans, "labels": lab,
-               "scores": {q: SCORE.get(str(l).strip().lower(), 0.0) for q, l in lab.items()}}
+               "n_asked": len(qmap), "n_answered": len([q for q in ans if q in qmap]),
+               "n_scored": len(_scores), "scores": _scores}
         (outd / (v["unit_id"].replace("::", "__") + f"__{a.view}.json")).write_text(
             json.dumps(rec, ensure_ascii=False), encoding="utf-8")
         with lock:
@@ -133,18 +140,36 @@ def main():
     ts = [threading.Thread(target=loop) for _ in range(a.workers)]
     [t.start() for t in ts]; [t.join() for t in ts]
 
-    vals = []
-    for f in outd.glob("*.json"):
-        vals += list(json.loads(f.read_text(encoding="utf-8"))["scores"].values())
+    vals = []; n_asked = 0
+    for f in sorted(outd.glob("*.json")):
+        if f.name == "summary.json":
+            continue
+        d = json.loads(f.read_text(encoding="utf-8"))
+        if "scores" not in d:
+            continue
+        vals += list(d["scores"].values())
+        n_asked += int(d.get("n_asked", 0))
     if vals:
         acc = sum(vals) / len(vals)
         print(f"\n=== PUBLIC-TEXT EVALUATION (view={a.view}, model={a.model}) ===")
-        print(f"  scored probes = {len(vals)}   Acc({a.view}) = {acc:.4f}")
+        cov = (len(vals) / n_asked) if n_asked else 0.0
+        acc_floor = (sum(vals) / n_asked) if n_asked else 0.0
+        print(f"  questions asked   = {n_asked}")
+        print(f"  scored (answered) = {len(vals)}   coverage = {cov:.3f}")
+        print(f"  Acc({a.view}) over answered      = {acc:.4f}")
+        print(f"  Acc({a.view}) unanswered-as-zero = {acc_floor:.4f}  (lower bound)")
+        if cov < 0.999:
+            print(f"  WARNING: {n_asked - len(vals)} question(s) unanswered; accuracy over")
+            print("           answered items is inflated -- report the coverage and the")
+            print("           unanswered-as-zero figure, not just the first number.")
         print("  NEW measurement on published text -- NOT the paper's 0.4066.")
         print("  See DISCLOSURES.md (T_public != T_full).")
         (outd / "summary.json").write_text(json.dumps(
             {"view": a.view, "model": a.model, "prompt_version": "v3.2",
-             "n": len(vals), "acc": round(acc, 6),
+             "n_asked": n_asked, "n_scored": len(vals),
+             "coverage": round(cov, 6),
+             "acc_over_answered": round(acc, 6),
+             "acc_unanswered_as_zero": round(acc_floor, 6),
              "errors": dict(errs)}, indent=1), encoding="utf-8")
     if errs:
         print("  errors:", dict(errs))

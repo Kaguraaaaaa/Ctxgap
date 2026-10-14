@@ -26,13 +26,27 @@ execution-grounded task state a reader can recover from the agent's own report.
 ### A. Reproduce the paper numbers (no model API needed)
 
 ```bash
-python3 scripts/reproduce_main37.py     # Acc(U), Acc(T_full), Gap
-python3 scripts/reproduce_all.py        # + successful-task subset, cross-harness, E2, CIs
+python3 scripts/reproduce_all.py        # the paper's headline numbers + CIs
+python3 scripts/reproduce_main37.py     # public-text subset (descriptive only)
 ```
 
-`reproduce_all.py` also recomputes: Actor accuracy, the 30 successful-task gap,
-cross-harness gaps (task-equal aggregation), and the equal-total-length rewrite
-experiment with 10,000-draw task-clustered bootstrap CIs.
+**`reproduce_all.py` is the one that reproduces the paper's numbers.** From the
+frozen per-probe scores it recomputes:
+
+| Result | Value |
+|---|---|
+| Acc(U) | 52.05% |
+| Acc(T_full) | 92.71% |
+| Acc(Actor) | 93.64% |
+| **Context Gap** | **40.66 pp** (95% CI [0.373, 0.438]) |
+| Successful-task gap (30 tasks, final checkpoint) | 34.79 pp |
+| Cross-harness gaps (task-equal) | CC 0.4070 / Pi 0.3903 / DSH 0.4898 |
+| Equal-total-length rewrite | B-A +8.29 pp, C-A +8.50 pp, C-B +0.20 pp (n.s.) |
+
+**`reproduce_main37.py` is a different thing**: it recomputes over the *published
+text subset only* (4,526 valid probes, 282 probes withheld), giving
+Acc(U) = 52.68%, Acc(T_full) = 92.95%, Gap = 40.27 pp. That number is
+**descriptive**: it is not the headline and must not be substituted for it.
 
 ### B. Evaluate your own model
 

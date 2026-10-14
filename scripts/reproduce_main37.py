@@ -32,12 +32,13 @@ import collections
 import json
 from pathlib import Path
 
-P = Path(__file__).resolve().parent
+P = Path(__file__).resolve().parents[1]      # repository root
+DATA = P / "data"
 TARGET = {"n_probes": 4855, "n_valid": 4799, "gap_view": 0.406582}
 
 
 def load(name):
-    return [json.loads(l) for l in open(P / f"{name}.jsonl", encoding="utf-8") if l.strip()]
+    return [json.loads(l) for l in open(DATA / f"{name}.jsonl", encoding="utf-8") if l.strip()]
 
 
 def main():
@@ -119,9 +120,9 @@ def main():
             "reasoning, its text is not published; only its frozen score is.",
         ],
     }
-    (P / "reproduced_main37.json").write_text(json.dumps(out, ensure_ascii=False, indent=1),
+    (DATA / "reproduced_main37.json").write_text(json.dumps(out, ensure_ascii=False, indent=1),
                                               encoding="utf-8")
-    print(f"\n[w] {P / 'reproduced_main37.json'}")
+    print(f"\n[w] {DATA / 'reproduced_main37.json'}")
 
 
 if __name__ == "__main__":
