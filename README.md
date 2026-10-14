@@ -27,7 +27,7 @@ execution-grounded task state a reader can recover from the agent's own report.
 
 ```bash
 python3 scripts/reproduce_all.py        # the paper's headline numbers + CIs
-python3 scripts/reproduce_main37.py     # public-text subset (descriptive only)
+python3 scripts/reproduce_main37.py     # headline again, then the public-text subset
 ```
 
 **`reproduce_all.py` is the one that reproduces the paper's numbers.** From the
@@ -43,10 +43,13 @@ frozen per-probe scores it recomputes:
 | Cross-harness gaps (task-equal) | CC 0.4070 / Pi 0.3903 / DSH 0.4898 |
 | Equal-total-length rewrite | B-A +8.29 pp, C-A +8.50 pp, C-B +0.20 pp (n.s.) |
 
-**`reproduce_main37.py` is a different thing**: it recomputes over the *published
-text subset only* (4,526 valid probes, 282 probes withheld), giving
-Acc(U) = 52.68%, Acc(T_full) = 92.95%, Gap = 40.27 pp. That number is
-**descriptive**: it is not the headline and must not be substituted for it.
+**`reproduce_main37.py` prints two things, in this order.** First it recomputes the
+*full frozen headline* (4,855 probes / 4,799 valid → Acc(U) 52.05%, Acc(T_full)
+92.71%, Gap 40.66 pp — the same headline as `reproduce_all.py`, without the CIs).
+Then, as a second and separate block, it recomputes the *text-publishable subset*
+(4,526 valid probes; 282 probes withheld as not publishable → Acc(U) 52.68%,
+Acc(T_full) 92.95%, Gap 40.27 pp). That second number is **descriptive**: it is not
+the headline and must not be substituted for it.
 
 ### B. Evaluate your own model
 
@@ -58,6 +61,20 @@ python3 scripts/evaluate.py --view V
 ```
 
 You supply an adapter that reads a prompt on stdin and prints the answer to stdout.
+The requested `--model` is also exported as `CTXGAP_EVAL_MODEL` to every child
+process, so an adapter without a `{model}` placeholder still calls the model you
+asked for.
+
+Both evaluation entry points use the **same** accuracy convention:
+**primary = probe-weighted mean** with the frozen weight
+`w(probe) = #atoms(importance ≥ 2, category c) / #probes(category c)`;
+the unweighted mean is printed alongside as a secondary figure only. Each also
+recomputes the frozen baseline on *exactly the probe set it evaluated*, so the
+reported `delta_acc_U` compares like with like.
+
+`evaluate.py` refuses to let failures inflate coverage: the denominator is fixed
+before any model call, a unit whose Observer or Judge call fails is still recorded,
+and the Judge may only score questions the Observer actually answered.
 CTXGAP supplies the fixed questions, references, published views and the frozen
 scoring prompts (`prompts/`, PROMPT_VERSION `v3.2`).
 

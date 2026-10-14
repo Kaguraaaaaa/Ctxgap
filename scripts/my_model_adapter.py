@@ -12,10 +12,28 @@ This example uses the Anthropic Messages API. Replace it with any backend
     export CTXGAP_EVAL_CMD='python3 scripts/my_model_adapter.py'
     export CTXGAP_EVAL_MODEL=claude-sonnet-4-5
     python3 scripts/evaluate.py --view U --limit 2
+
+WHICH MODEL IS CALLED
+---------------------
+`evaluate.py` exports the requested model as CTXGAP_EVAL_MODEL for every child
+process, in addition to substituting any {model} placeholder in the command. So
+even without a placeholder this adapter calls the model you passed via --model /
+CTXGAP_EVAL_MODEL, and never silently falls back to a different one:
+
+    MODEL = argv[1] if given, else $CTXGAP_EVAL_MODEL, else claude-sonnet-4-5
 """
 import json, os, sys
 
-MODEL = os.environ.get("CTXGAP_EVAL_MODEL", "claude-sonnet-4-5")
+def model_from_argv():
+    # first non-option argument, so both `adapter.py my-model` and
+    # `adapter.py --model my-model` resolve to "my-model" (not "--model")
+    for x in sys.argv[1:]:
+        if x.strip() and not x.startswith("-"):
+            return x.strip()
+    return None
+
+
+MODEL = model_from_argv() or os.environ.get("CTXGAP_EVAL_MODEL", "claude-sonnet-4-5")
 SYSTEM_HINT = ""  # the frozen observer system prompt is already in the user message
 
 

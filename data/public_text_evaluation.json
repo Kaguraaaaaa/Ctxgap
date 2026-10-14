@@ -1,12 +1,18 @@
 {
  "mode": "B_public_text_evaluation",
  "n_inputs": 4455,
- "n_scored": 40,
- "coverage": 0.008978675645342313,
- "acc_U_public": 0.3804542791332189,
- "frozen_acc_U": 0.5205,
- "delta_acc_U": -0.14004572086678108,
- "gap_view": null,
- "why_no_gap_view": "T_full contains private reasoning and is not published; (B) cannot re-run that condition, so no Gap_view is computable here.",
- "not_equivalent_to": 0.406582
+ "n_scored": 0,
+ "coverage": null,
+ "acc_U_public": null,
+ "frozen_on_same_set": {
+  "n": 4455,
+  "acc_U": 0.523459878840377,
+  "acc_T_full": 0.9219206382381896,
+  "gap": 0.39846075939781256,
+  "n_valid": 4408,
+  "acc_U_valid": 0.5269105465430549,
+  "acc_T_full_valid": 0.9292408900264557,
+  "gap_valid": 0.4023303434834008
+ },
+ "why_no_gap_view": "T_full contains private reasoning and is not published; (B) cannot re-run that condition, so no Gap_view is computable here."
 }

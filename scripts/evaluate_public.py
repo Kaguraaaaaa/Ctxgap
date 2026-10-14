@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """CTXGAP main37 — (B) PUBLIC-TEXT EVALUATION harness. Zero API by default.
 
-    python3 evaluate_public.py                      # emit observer_inputs.jsonl
-    python3 evaluate_public.py --answers obs.json   # score an external Observer run
+    python3 scripts/evaluate_public.py                      # emit observer_inputs.jsonl
+    python3 scripts/evaluate_public.py --answers obs.json   # score an external Observer run
 
 WHAT (B) IS, AND WHAT IT IS NOT
 -------------------------------
@@ -25,6 +25,12 @@ That delta is currently UNMEASURED: no external Observer has been run yet.
 
 (B) is NOT an acceptance gate for (A). (A) stands on its own.
 
+Accuracy convention (unified with evaluate.py and reproduce_main37.py):
+    PRIMARY   probe-weighted mean, w from the frozen rule in analysis/report_v3.py
+    SECONDARY unweighted (simple) mean, printed alongside for transparency
+The frozen baseline is recomputed on EXACTLY the same probe set that (B) evaluates, so
+`delta_acc_U` compares like with like.
+
 Usage
 -----
   answers file format (JSON):  {"<probe_id>": "correct"|"partial"|"wrong"|"unknown", ...}
@@ -35,14 +41,30 @@ from __future__ import annotations
 import argparse, collections, json
 from pathlib import Path
 
-P = Path(__file__).resolve().parent
+P = Path(__file__).resolve().parents[1]      # repository root
+DATA = P / "data"
 SCORE = {"correct": 1.0, "partial": 0.5, "wrong": 0.0, "unknown": 0.0}
-FROZEN_ACC_U = 0.520500          # frozen, from reproduce_main37.py
-FROZEN_GAP_VIEW = 0.406582
 
 
 def load(name):
-    return [json.loads(l) for l in open(P / f"{name}.jsonl", encoding="utf-8") if l.strip()]
+    return [json.loads(l) for l in open(DATA / f"{name}.jsonl", encoding="utf-8") if l.strip()]
+
+
+def as_bool(v, default=True):
+    if isinstance(v, bool):
+        return v
+    if v is None:
+        return default
+    if isinstance(v, str):
+        return v.strip().lower() not in ("", "false", "0", "no")
+    return bool(v)
+
+
+def frozen_scores(jud):
+    per = collections.defaultdict(lambda: collections.defaultdict(list))
+    for j in jud:
+        per[j["probe_id"]][j["condition"]].append(j["score"])
+    return {pid: {k: sum(v) / len(v) for k, v in c.items()} for pid, c in per.items()}
 
 
 def main():
@@ -64,10 +86,15 @@ def main():
         k = (x["unit_id"], x["category"])
         w[x["probe_id"]] = n_cat[k] / p_cat[k] if p_cat[k] else 1.0
 
-    available = [x for x in probes
-                 if x.get("public_text") and u.get(x["unit_id"], {}).get("public_text")]
+    # both the probe AND its U view must be publishable, and the view must carry text
+    def ok(x):
+        v = u.get(x["unit_id"], {})
+        return (as_bool(x.get("public_text"), True) and as_bool(v.get("public_text"), True)
+                and (v.get("text") or "").strip())
 
-    with open(P / "observer_inputs.jsonl", "w", encoding="utf-8") as f:
+    available = [x for x in probes if ok(x)]
+
+    with open(DATA / "observer_inputs.jsonl", "w", encoding="utf-8") as f:
         for x in available:
             f.write(json.dumps({
                 "probe_id": x["probe_id"], "unit_id": x["unit_id"],
@@ -77,39 +104,87 @@ def main():
                 "u_view_chars": len(u[x["unit_id"]]["text"]),
             }, ensure_ascii=False) + "\n")
 
-    print(f"observer inputs written : {len(available)}  -> observer_inputs.jsonl")
-    print(f"(U text is read from u_views.jsonl, keyed by unit_id)")
+    print(f"observer inputs written : {len(available)}  -> data/observer_inputs.jsonl")
+    print("(U text is read from data/u_views.jsonl, keyed by unit_id)")
+
+    # frozen baseline on EXACTLY the same set
+    fs = frozen_scores(load("judgements"))
+    ids = [x["probe_id"] for x in available]
+    def wacc(key, subset=None):
+        ss = subset if subset is not None else ids
+        num = den = 0.0
+        for i in ss:
+            s = (fs.get(i) or {}).get(key)
+            if s is None:
+                continue
+            num += w.get(i, 1.0) * s; den += w.get(i, 1.0)
+        return num / den if den else None
+    valid = [i for i in ids
+             if (fs.get(i) or {}).get("prior") is not None and fs[i]["prior"] < 1
+             and (fs.get(i) or {}).get("T_full") is not None and fs[i]["T_full"] > 0]
+    fU, fT = wacc("U"), wacc("T_full")
+    fUv, fTv = wacc("U", valid), wacc("T_full", valid)
+    print(f"frozen on the same set  : Acc(U) {fU:.6f}  Acc(T_full) {fT:.6f}  "
+          f"Gap {fT - fU:.6f}  (n={len(ids)})")
+    print(f"frozen, valid probes only: Acc(U) {fUv:.6f}  Acc(T_full) {fTv:.6f}  "
+          f"Gap {fTv - fUv:.6f}  (n={len(valid)})")
 
     if not a.answers:
         print("\nno --answers given: (B) is UNEVALUATED. "
               "Run an Observer on these inputs, then re-run with --answers.")
+        (DATA / "public_text_evaluation.json").write_text(json.dumps({
+            "mode": "B_public_text_evaluation", "n_inputs": len(available),
+            "n_scored": 0, "coverage": None, "acc_U_public": None,
+            "frozen_on_same_set": {"n": len(ids), "acc_U": fU, "acc_T_full": fT,
+                                   "gap": (fT - fU) if (fU is not None and fT is not None) else None,
+                                   "n_valid": len(valid), "acc_U_valid": fUv,
+                                   "acc_T_full_valid": fTv,
+                                   "gap_valid": (fTv - fUv) if (fUv is not None and fTv is not None) else None},
+            "why_no_gap_view": "T_full contains private reasoning and is not published; (B) cannot "
+                               "re-run that condition, so no Gap_view is computable here.",
+        }, ensure_ascii=False, indent=1), encoding="utf-8")
         return
 
     ans = json.loads(Path(a.answers).read_text(encoding="utf-8"))
     num = den = 0.0
+    simple = 0.0
     scored = 0
+    bad = collections.Counter()
     for x in available:
         lab = ans.get(x["probe_id"])
         if lab is None:
             continue
+        l = str(lab).strip().lower()
+        if l not in SCORE:
+            bad[l] += 1
+            continue
         scored += 1
-        num += w[x["probe_id"]] * SCORE.get(lab, 0.0)
+        num += w[x["probe_id"]] * SCORE[l]
         den += w[x["probe_id"]]
+        simple += SCORE[l]
     acc = num / den if den else None
+    acc_simple = simple / scored if scored else None
     out = {
         "mode": "B_public_text_evaluation",
         "n_inputs": len(available), "n_scored": scored,
         "coverage": scored / len(available) if available else None,
-        "acc_U_public": acc,
-        "frozen_acc_U": FROZEN_ACC_U,
-        "delta_acc_U": (acc - FROZEN_ACC_U) if acc is not None else None,
+        "acc_U_public_weighted": acc,
+        "acc_U_public_unweighted": acc_simple,
+        "accuracy_convention": "PRIMARY = probe-weighted (frozen rule, analysis/report_v3.py); "
+                               "unweighted printed as secondary only",
+        "frozen_on_same_set": {"n": len(ids), "acc_U": fU, "acc_T_full": fT,
+                               "gap": (fT - fU) if (fU is not None and fT is not None) else None,
+                               "n_valid": len(valid), "acc_U_valid": fUv,
+                               "acc_T_full_valid": fTv,
+                               "gap_valid": (fTv - fUv) if (fUv is not None and fTv is not None) else None},
+        "delta_acc_U_vs_frozen": (acc - fU) if (acc is not None and fU is not None) else None,
+        "invalid_labels_dropped": dict(bad),
         "gap_view": None,
         "why_no_gap_view": "T_full contains private reasoning and is not published; (B) cannot "
                            "re-run that condition, so no Gap_view is computable here.",
-        "not_equivalent_to": FROZEN_GAP_VIEW,
     }
-    (P / "public_text_evaluation.json").write_text(json.dumps(out, ensure_ascii=False, indent=1),
-                                                   encoding="utf-8")
+    (DATA / "public_text_evaluation.json").write_text(json.dumps(out, ensure_ascii=False, indent=1),
+                                                      encoding="utf-8")
     print(json.dumps(out, ensure_ascii=False, indent=1))
 
 
