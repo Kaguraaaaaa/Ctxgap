@@ -1,0 +1,24 @@
+{
+ "reproduction_kind": "frozen-score reproduction (arithmetic only, no model re-run)",
+ "n_probes": 4855,
+ "n_valid": 4799,
+ "acc_U": 0.5204995497021708,
+ "acc_T_full": 0.9270812269362775,
+ "gap_view": 0.40658167723410665,
+ "target": {
+  "n_probes": 4855,
+  "n_valid": 4799,
+  "gap_view": 0.406582
+ },
+ "gap_view_matches_target": true,
+ "text_publishable_subset": {
+  "n_valid": 4526,
+  "acc_U": 0.5267758748346725,
+  "acc_T_full": 0.9295232954843311,
+  "gap_view": 0.4027474206496586
+ },
+ "not_claimable": [
+  "Equality with a post-sanitization Observer re-run (B): the sanitized U view is a different input from the frozen one; (B) must be reported with its own delta.",
+  "Reproduction of the T_full condition by an external party: T_full contains private reasoning, its text is not published; only its frozen score is."
+ ]
+}

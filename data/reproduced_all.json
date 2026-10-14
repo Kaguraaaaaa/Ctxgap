@@ -1,0 +1,89 @@
+{
+ "main": {
+  "n_valid_probes": 4799,
+  "n_tasks": 37,
+  "acc_U": 0.5205,
+  "acc_T_full": 0.927081,
+  "acc_actor": 0.936429,
+  "gap": 0.406582,
+  "gap_ci95": [
+   0.373278,
+   0.43809
+  ]
+ },
+ "successful_tasks_k4": {
+  "n_tasks": 30,
+  "n_probes": 1172,
+  "acc_U": 0.570544,
+  "acc_T_full": 0.918471,
+  "gap": 0.347926,
+  "gap_ci95": [
+   0.281607,
+   0.412632
+  ]
+ },
+ "cross_harness": {
+  "ClaudeCode": {
+   "n_probes": 1664,
+   "n_tasks": 12,
+   "acc_U_pooled": 0.524959,
+   "acc_T_full_pooled": 0.927144,
+   "gap_task_equal": 0.406963,
+   "gap_ci95": [
+    0.348256,
+    0.46748
+   ]
+  },
+  "Pi": {
+   "n_probes": 1609,
+   "n_tasks": 12,
+   "acc_U_pooled": 0.524309,
+   "acc_T_full_pooled": 0.941487,
+   "gap_task_equal": 0.390271,
+   "gap_ci95": [
+    0.318556,
+    0.487488
+   ]
+  },
+  "DSH": {
+   "n_probes": 1880,
+   "n_tasks": 12,
+   "acc_U_pooled": 0.414652,
+   "acc_T_full_pooled": 0.920829,
+   "gap_task_equal": 0.489845,
+   "gap_ci95": [
+    0.427496,
+    0.552534
+   ]
+  }
+ },
+ "e2": {
+  "n_probes": 4175,
+  "acc": {
+   "A": 0.6716,
+   "B": 0.754514,
+   "C": 0.756562
+  },
+  "B-A": {
+   "diff": 0.082915,
+   "ci95": [
+    0.057177,
+    0.104186
+   ]
+  },
+  "C-A": {
+   "diff": 0.084962,
+   "ci95": [
+    0.063368,
+    0.10576
+   ]
+  },
+  "C-B": {
+   "diff": 0.002047,
+   "ci95": [
+    -0.014774,
+    0.017842
+   ]
+  }
+ }
+}

@@ -1,0 +1,18 @@
+CTXGAP main37 reproduction package — LICENCE NOT YET SELECTED
+=============================================================
+
+This file MUST be replaced before any public distribution.
+
+What needs to be decided by the authors:
+  1. Licence for the CTXGAP-derived materials (questions, references,
+     aggregations, code).  Common choices: CC BY 4.0 (data/text) +
+     MIT or Apache-2.0 (code).
+  2. Upstream provenance: the tasks derive from SWE-bench-style
+     instances (django / sympy / pytest).  SWE-bench itself is MIT,
+     but that does NOT automatically extend to the underlying
+     repositories or to fragments of upstream source that appear
+     inside this package.  Each upstream project keeps its own licence
+     (Django BSD-3-Clause, SymPy BSD-3-Clause, pytest MIT); those terms
+     continue to apply to their code.
+  3. State clearly that 282 probes and 21 atoms are permanently
+     withheld and are not covered by any grant here.

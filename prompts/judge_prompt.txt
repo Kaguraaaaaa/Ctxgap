@@ -1,0 +1,9 @@
+请根据参考答案为下列回答评分。
+评分标准：
+- "correct"：与参考答案的关键信息一致
+- "partial"：部分正确或不够具体
+- "wrong"：给出了与参考答案矛盾或错误的信息
+- "unknown"：回答"不知道"或回避
+输出 JSON 对象（不要输出其他内容）：{{"<题号>": "correct|partial|wrong|unknown", ...}}
+
+{items}

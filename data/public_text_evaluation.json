@@ -1,0 +1,12 @@
+{
+ "mode": "B_public_text_evaluation",
+ "n_inputs": 4455,
+ "n_scored": 40,
+ "coverage": 0.008978675645342313,
+ "acc_U_public": 0.3804542791332189,
+ "frozen_acc_U": 0.5205,
+ "delta_acc_U": -0.14004572086678108,
+ "gap_view": null,
+ "why_no_gap_view": "T_full contains private reasoning and is not published; (B) cannot re-run that condition, so no Gap_view is computable here.",
+ "not_equivalent_to": 0.406582
+}

@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+evaluation_out/
+.DS_Store

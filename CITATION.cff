@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+type: dataset
+title: CTXGAP main37 reproduction package
+message: >-
+  AUTHORS / YEAR / VENUE NOT FILLED IN.  Replace before distribution:
+  add authors (given-family names, affiliation), year, and either the
+  arXiv id or the venue.  Cite the CTXGAP paper as the primary
+  reference for this dataset.
+license: TODO
