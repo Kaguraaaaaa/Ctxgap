@@ -1,18 +1,66 @@
-CTXGAP main37 reproduction package — LICENCE NOT YET SELECTED
-=============================================================
+# CTXGAP Benchmark -- Licence
 
-This file MUST be replaced before any public distribution.
+This repository mixes three kinds of material, licensed as follows.
 
-What needs to be decided by the authors:
-  1. Licence for the CTXGAP-derived materials (questions, references,
-     aggregations, code).  Common choices: CC BY 4.0 (data/text) +
-     MIT or Apache-2.0 (code).
-  2. Upstream provenance: the tasks derive from SWE-bench-style
-     instances (django / sympy / pytest).  SWE-bench itself is MIT,
-     but that does NOT automatically extend to the underlying
-     repositories or to fragments of upstream source that appear
-     inside this package.  Each upstream project keeps its own licence
-     (Django BSD-3-Clause, SymPy BSD-3-Clause, pytest MIT); those terms
-     continue to apply to their code.
-  3. State clearly that 282 probes and 21 atoms are permanently
-     withheld and are not covered by any grant here.
+## 1. CTXGAP-original benchmark data, Probes and References -- CC BY 4.0
+
+Applies to: `data/probes.jsonl`, `data/atoms.jsonl`, `data/units.jsonl`, the
+numeric tables in `data/anon/`, `prompts/*`, and the questions / reference
+answers authored for CTXGAP.
+
+Licensed under the Creative Commons Attribution 4.0 International licence
+(CC BY 4.0).  You may share and adapt this material for any purpose, including
+commercially, provided you give appropriate credit to the CTXGAP paper, link to
+this licence, and indicate whether you made changes.
+
+Full legal code: https://creativecommons.org/licenses/by/4.0/legalcode
+Human-readable summary: https://creativecommons.org/licenses/by/4.0/
+
+## 2. CTXGAP-original evaluation and reproduction code -- MIT
+
+Applies to: `scripts/*.py` (including `reproduce_main37.py`,
+`reproduce_all.py`, `evaluate.py`, `my_model_adapter.py`) and other code
+authored for CTXGAP.
+
+MIT License
+
+Copyright (c) 2026 The CTXGAP authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## 3. Third-party project code fragments -- their original licences
+
+Some records contain fragments of upstream source code or test files
+(Django, SymPy, pytest, and SWE-bench-style task material) that were part of
+the agent's execution context.  **These are not relicensed here.**  Each
+upstream project keeps its own licence, which continues to apply to its code:
+
+- Django  -- BSD 3-Clause
+- SymPy   -- BSD 3-Clause
+- pytest  -- MIT
+- SWE-bench -- MIT
+
+SWE-bench itself being MIT does **not** automatically extend to the underlying
+repositories; upstream terms continue to apply to their code.
+
+## Not covered by any grant
+
+282 probes and 21 atoms are **permanently withheld** (their evidence exists
+only in private model reasoning, or derives from agent memory).  They are not
+included in this repository and are not covered by the licences above.

@@ -71,6 +71,10 @@ docs/      protocol, disclosures, privacy audit, limitations
 
 ## Licence and citation
 
-See `LICENSE.txt` and `CITATION.cff`. The tasks derive from SWE-bench-style instances;
-upstream projects (Django, SymPy, pytest) keep their own licences, which continue to
-apply to their code fragments appearing here.
+| Material | Licence |
+|---|---|
+| CTXGAP-original benchmark data, Probes and References | **CC BY 4.0** |
+| CTXGAP-original evaluation and reproduction code | **MIT** |
+| Third-party code fragments (Django, SymPy, pytest, SWE-bench) | their original licences |
+
+See `LICENSE.txt` for the full text and `CITATION.cff` for how to cite.

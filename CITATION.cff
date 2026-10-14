@@ -5,5 +5,6 @@ message: >-
   AUTHORS / YEAR / VENUE NOT FILLED IN.  Replace before distribution:
   add authors (given-family names, affiliation), year, and either the
   arXiv id or the venue.  Cite the CTXGAP paper as the primary
-  reference for this dataset.
-license: TODO
+  reference for this dataset.  Licence: CC BY 4.0 for the data, probes and
+  references; MIT for the code.
+license: CC-BY-4.0 (data/questions/references); MIT (code)
